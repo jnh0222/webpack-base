@@ -1,30 +1,24 @@
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
-	entry: {
-		'entry': './entry.js'
-	},
+	entry: './entry.js',
 	output: {
 		path: path.join(__dirname, 'dist'),
-		filename: 'bundle.js',
-	},
-	devtool: 'inline-source-map',
-	devServer: {
-		contentBase: path.join(__dirname, 'dist'),
-	    hot: true
+		filename: 'bundle_[hash].js'
 	},
 	module: {
 		rules: [
 			{
 				test: /\.(js|jsx)$/,
-				use: [
-					{
-						loader: 'babel-loader',
-						options: {presets: ['stage-2']}
-					}
-				],
+				use: {
+					loader: 'babel-loader',
+					options: {presets: ['es2015']}
+				},
 				exclude: /node_modules/
 			},
 			{
@@ -34,19 +28,40 @@ module.exports = {
 					use: [
 						{
 							loader: "css-loader",
-							options: {sourceMap: true}
+							options: {
+								sourceMap: true,
+								minimize: true
+							}
 						},
 						{
-			                loader: "sass-loader",
+							loader: "sass-loader",
 							options: {sourceMap: true}
-		            	}
+						}
 					]
 				})
 			}
 		]
 	},
 	plugins: [
-		new ExtractTextPlugin('style.css'),
-		new webpack.HotModuleReplacementPlugin()
+		new CleanWebpackPlugin('dist/*.*'),
+		new ExtractTextPlugin('style_[contenthash].css'),
+		new UglifyJSPlugin({
+			test: /\.js$/,
+			sourceMap: true,
+			uglifyOptions: {
+				compress: {
+					drop_console: true
+				}
+			}
+		}),
+		new HtmlWebpackPlugin({
+			filename: 'index.html',
+			template: path.resolve(__dirname, 'index.ejs'),
+			minify: {
+				collapseWhitespace: true,
+				removeAttributeQuotes: true,
+				removeComments: true
+			}
+		})
 	]
 };
