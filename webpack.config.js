@@ -4,12 +4,17 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+var ManifestPlugin = require('webpack-manifest-plugin');
 
 module.exports = {
 	entry: './entry.js',
+	entry: {
+		js_custom:'./entry.js',
+		js_lib: ['jquery']
+	},
 	output: {
 		path: path.join(__dirname, 'dist'),
-		filename: 'bundle_[hash].js'
+		filename: '[name]_bundle_[hash].js'
 	},
 	module: {
 		rules: [
@@ -53,6 +58,16 @@ module.exports = {
 					drop_console: true
 				}
 			}
+		}),
+		new ManifestPlugin({
+				fileName: 'manifest.json',
+				basePath: './dist/'
+			}),
+		new webpack.ProvidePlugin({
+			'window.jQuery'    : 'jquery',
+			'window.$'         : 'jquery',
+			'jQuery'           : 'jquery',
+			'$'                : 'jquery'
 		}),
 		new HtmlWebpackPlugin({
 			filename: 'index.html',

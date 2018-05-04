@@ -6,10 +6,8 @@ entry.js:
 
 
 import './src/scss/import.scss';
-import $ from './src/vendor/jquery.min.js'
 import hello from './src/js/hello';
 import world from './src/js/world';
 
-const win = $(this);
-document.write(win + '<br>');
+$('#app').text('$ loaded.');
 document.write(`${hello}, ${world}!`);
